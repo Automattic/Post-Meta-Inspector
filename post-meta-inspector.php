@@ -42,7 +42,7 @@ class Post_Meta_Inspector
 			}
 		</style>
 
-		<?php $custom_fields = get_post_custom(); ?>
+		<?php $custom_fields = get_post_meta( get_the_ID() ); ?>
 		<table>
 			<thead>
 				<tr>
@@ -51,11 +51,13 @@ class Post_Meta_Inspector
 				</tr>
 			</thead>
 			<tbody>
-		<?php foreach( $custom_fields as $key => $value ) : ?>
+		<?php foreach( $custom_fields as $key => $values ) : ?>
+			<?php foreach( $values as $value ) : ?>
 			<tr>
 				<td class="key-column"><?php echo esc_html( $key ); ?></td>
 				<td class="value-column"><code><?php echo var_export( $value, true ); ?></code></td>
 			</tr>
+			<?php endforeach; ?>
 		<?php endforeach; ?>
 			</tbody>
 		</table>
