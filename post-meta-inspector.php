@@ -15,7 +15,15 @@ class Post_Meta_Inspector
 
 	function __construct() {
 
+		add_action( 'init', array( $this, 'action_init') );
 		add_action( 'add_meta_boxes', array( $this, 'action_add_meta_boxes' ) );
+	}
+
+	/**
+	 * Init i18n files
+	 */
+	function action_init() {
+		load_plugin_textdomain( 'post-meta-inspector', false, plugin_basename( dirname( __FILE__ ) ) . '/languages/' );
 	}
 
 	/**
