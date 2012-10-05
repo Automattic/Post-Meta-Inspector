@@ -3,7 +3,7 @@ Contributors: danielbachhuber, automattic
 Tags: post meta, tools
 Tested up to: 3.4.2
 Requires at least: 3.1
-Stable tag: 0.0
+Stable tag: 1.0
 License: GPLv2 or later
 
 Peer inside your post meta
