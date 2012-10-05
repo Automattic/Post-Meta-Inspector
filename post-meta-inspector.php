@@ -55,7 +55,7 @@ class Post_Meta_Inspector
 			<?php foreach( $values as $value ) : ?>
 			<tr>
 				<td class="key-column"><?php echo esc_html( $key ); ?></td>
-				<td class="value-column"><code><?php echo var_export( $value, true ); ?></code></td>
+				<td class="value-column"><code><?php echo esc_html( var_export( $value, true ) ); ?></code></td>
 			</tr>
 			<?php endforeach; ?>
 		<?php endforeach; ?>
