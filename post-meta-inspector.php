@@ -59,8 +59,11 @@ class Post_Meta_Inspector
 				</tr>
 			</thead>
 			<tbody>
-		<?php foreach( $custom_fields as $key => $values ) :
-				if ( apply_filters( 'pmi_ignore_post_meta_key', '__return_false', $key ) )
+		<?php
+		$ignored_keys = apply_filters( 'pmi_ignore_post_meta_key', array( ) );
+
+		foreach( $custom_fields as $key => $values ) :
+				if ( in_array( $key, $ignored_keys ) )
 					continue;
 		?>
 			<?php foreach( $values as $value ) : ?>
