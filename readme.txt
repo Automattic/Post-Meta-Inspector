@@ -18,7 +18,10 @@ Originally developed for [WordPress.com VIP](http://vip.wordpress.com/)-hosted c
 
 1. See which rewrite rules match a given URL (and the priorites they match in)
 
-== Changelog == 
+== Changelog ==
+
+= 1.1 (??? ??, 2012) =
+= Bug fix: Add CSS rules to prevent long code blocks from flowing outside of the meta box. Thanks [cfg](https://github.com/cfg) for the pull request
 
 = 1.0 (Oct. 5, 2012) =
 * Initial release
