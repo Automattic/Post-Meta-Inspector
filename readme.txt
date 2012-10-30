@@ -16,7 +16,7 @@ Originally developed for [WordPress.com VIP](http://vip.wordpress.com/)-hosted c
 
 == Screenshots ==
 
-1. See which rewrite rules match a given URL (and the priorites they match in)
+1. See the metadata associated with any post using the post meta box
 
 == Changelog ==
 
