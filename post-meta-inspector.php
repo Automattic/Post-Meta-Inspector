@@ -43,10 +43,19 @@ class Post_Meta_Inspector
 		?>
 		<style>
 			#post-meta-inspector table {
-				text-align: left
+				text-align: left;
+				width: 100%;
 			}
 			#post-meta-inspector table .key-column {
-				min-width: 200px;
+				display: inline-block;
+				width: 20%;
+			}
+			#post-meta-inspector table .value-column {
+				display: inline-block;
+				width: 79%;
+			}
+			#post-meta-inspector code {
+				word-wrap: break-word;
 			}
 		</style>
 
