@@ -39,7 +39,9 @@ class Post_Meta_Inspector
 	}
 
 	function post_meta_inspector() {
-
+		$toggle_length = apply_filters( 'pmi_toggle_long_value_length', 0 );
+		$toggle_length = max( intval($toggle_length), 0);
+		$toggle_el = '<a href="javascript:void(0);" class="pmi_toggle">' . __( 'Click to show&hellip;', 'post-meta-inspector' ) . '</a>';
 		?>
 		<style>
 			#post-meta-inspector table {
@@ -73,15 +75,26 @@ class Post_Meta_Inspector
 					continue;
 		?>
 			<?php foreach( $values as $value ) : ?>
+			<?php
+				$value = var_export( $value, true );
+				$toggled = $toggle_length && strlen($value) > $toggle_length;
+			?>
 			<tr>
 				<td class="key-column"><?php echo esc_html( $key ); ?></td>
-				<td class="value-column"><code><?php echo esc_html( var_export( $value, true ) ); ?></code></td>
+				<td class="value-column"><?php if( $toggled ) echo $toggle_el; ?><code <?php if( $toggled ) echo ' style="display: none;"'; ?>><?php echo esc_html( $value ); ?></code></td>
 			</tr>
 			<?php endforeach; ?>
 		<?php endforeach; ?>
 			</tbody>
 		</table>
-
+		<script>
+		jQuery(document).ready(function() {
+			jQuery('.pmi_toggle').click( function(e){
+				jQuery('+ code', this).show();
+				jQuery(this).hide();
+			});
+		});
+		</script>
 		<?php
 	}
 
