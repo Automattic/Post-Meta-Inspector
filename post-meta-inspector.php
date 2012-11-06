@@ -13,32 +13,49 @@ define( 'POST_META_INSPECTOR_VERSION', '1.1-working' );
 class Post_Meta_Inspector
 {
 
-	function __construct() {
+	private static $instance;
 
-		add_action( 'init', array( $this, 'action_init') );
-		add_action( 'add_meta_boxes', array( $this, 'action_add_meta_boxes' ) );
+	public $view_cap;
+
+	public function instance() {
+
+		if ( ! isset( self::$instance ) ) {
+			self::$instance = new Post_Meta_Inspector;
+			self::setup_actions();
+		}
+		return self::$instance;
+	}
+
+	private function __construct() {
+		/** Do nothing **/
+	}
+
+	private function setup_actions() {
+
+		add_action( 'init', array( self::$instance, 'action_init') );
+		add_action( 'add_meta_boxes', array( self::$instance, 'action_add_meta_boxes' ) );
 	}
 
 	/**
 	 * Init i18n files
 	 */
-	function action_init() {
+	public function action_init() {
 		load_plugin_textdomain( 'post-meta-inspector', false, plugin_basename( dirname( __FILE__ ) ) . '/languages/' );
 	}
 
 	/**
 	 * Add the post meta box to view post meta if the user has permissions to
 	 */
-	function action_add_meta_boxes() {
+	public function action_add_meta_boxes() {
 
 		$this->view_cap = apply_filters( 'pmi_view_cap', 'manage_options' );
 		if ( ! current_user_can( $this->view_cap ) || ! apply_filters( 'pmi_show_post_type', '__return_true', get_post_type() ) )
 			return;
 
-		add_meta_box( 'post-meta-inspector', __( 'Post Meta Inspector', 'post-meta-inspector' ), array( $this, 'post_meta_inspector' ), get_post_type() );
+		add_meta_box( 'post-meta-inspector', __( 'Post Meta Inspector', 'post-meta-inspector' ), array( self::$instance, 'post_meta_inspector' ), get_post_type() );
 	}
 
-	function post_meta_inspector() {
+	public function post_meta_inspector() {
 		$toggle_length = apply_filters( 'pmi_toggle_long_value_length', 0 );
 		$toggle_length = max( intval($toggle_length), 0);
 		$toggle_el = '<a href="javascript:void(0);" class="pmi_toggle">' . __( 'Click to show&hellip;', 'post-meta-inspector' ) . '</a>';
@@ -71,7 +88,7 @@ class Post_Meta_Inspector
 			</thead>
 			<tbody>
 		<?php foreach( $custom_fields as $key => $values ) :
-				if ( apply_filters( 'pmi_ignore_post_meta_key', '__return_false', $key ) )
+				if ( apply_filters( 'pmi_ignore_post_meta_key', false, $key ) )
 					continue;
 		?>
 			<?php foreach( $values as $value ) : ?>
@@ -100,5 +117,7 @@ class Post_Meta_Inspector
 
 }
 
-global $post_meta_inspector;
-$post_meta_inspector = new Post_Meta_Inspector;
+function Post_Meta_Inspector() {
+	return Post_Meta_Inspector::instance();
+}
+add_action( 'plugins_loaded', 'Post_Meta_Inspector' );
