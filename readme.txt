@@ -3,7 +3,7 @@ Contributors: danielbachhuber, automattic
 Tags: post meta, tools
 Tested up to: 3.4.2
 Requires at least: 3.1
-Stable tag: 1.0
+Stable tag: 1.1
 License: GPLv2 or later
 
 Peer inside your post meta
@@ -20,7 +20,7 @@ Originally developed for [WordPress.com VIP](http://vip.wordpress.com/)-hosted c
 
 == Changelog ==
 
-= 1.1 (??? ??, 2012) =
+= 1.1 (Nov. 6, 2012) =
 = New filter 'pmi_toggle_long_value_length' let's you optionally convert long post meta values to a "Click to view" UX. Thanks [cfg](https://github.com/cfg) for the pull request
 = Bug fix: Add CSS rules to prevent long code blocks from flowing outside of the meta box. Thanks [cfg](https://github.com/cfg) for the pull request
 = Change to singleton pattern
