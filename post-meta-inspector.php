@@ -17,7 +17,7 @@ class Post_Meta_Inspector
 
 	public $view_cap;
 
-	public function instance() {
+	public static function instance() {
 
 		if ( ! isset( self::$instance ) ) {
 			self::$instance = new Post_Meta_Inspector;
@@ -30,7 +30,7 @@ class Post_Meta_Inspector
 		/** Do nothing **/
 	}
 
-	private function setup_actions() {
+	private static function setup_actions() {
 
 		add_action( 'init', array( self::$instance, 'action_init') );
 		add_action( 'add_meta_boxes', array( self::$instance, 'action_add_meta_boxes' ) );
