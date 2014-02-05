@@ -4,11 +4,11 @@
  * Plugin URI: http://wordpress.org/extend/plugins/post-meta-inspector/
  * Description: Peer inside your post meta. Admins can view post meta for any post from a simple meta box.
  * Author: Daniel Bachhuber, Automattic
- * Version: 1.1
+ * Version: 1.1.1
  * Author URI: http://automattic.com/
  */
 
-define( 'POST_META_INSPECTOR_VERSION', '1.1' );
+define( 'POST_META_INSPECTOR_VERSION', '1.1.1' );
 
 class Post_Meta_Inspector
 {

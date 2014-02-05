@@ -1,9 +1,9 @@
 === Post Meta Inspector ===
 Contributors: danielbachhuber, automattic
 Tags: post meta, tools
-Tested up to: 3.5.1
+Tested up to: 3.8.1
 Requires at least: 3.1
-Stable tag: 1.1
+Stable tag: 1.1.1
 License: GPLv2 or later
 
 Peer inside your post meta
@@ -19,6 +19,9 @@ Originally developed for [WordPress.com VIP](http://vip.wordpress.com/)-hosted c
 1. See the metadata associated with any post using the post meta box
 
 == Changelog ==
+
+= 1.1.1 (Feb. 5, 2014) =
+* Bug fix: Properly declare static methods. 
 
 = 1.1 (Nov. 6, 2012) =
 * New filter 'pmi_toggle_long_value_length' let's you optionally convert long post meta values to a "Click to view" UX. Thanks [cfg](https://github.com/cfg) for the pull request
