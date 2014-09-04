@@ -41,7 +41,6 @@ class Post_Meta_Inspector
 
 		add_filter( 'post_row_actions', array( self::$instance, 'meta_view_row_action' ), 10, 2 );
 		add_filter( 'page_row_actions', array( self::$instance, 'meta_view_row_action' ), 10, 2 );
-		add_filter( 'user_row_actions', array( self::$instance, 'meta_view_row_action' ), 10, 2 );
 	}
 
 	/**
@@ -61,7 +60,7 @@ class Post_Meta_Inspector
 			return;
 
 		$screen = get_current_screen();
-		if( in_array( $screen->base, array( 'edit', 'users') ) ){
+		if( in_array( $screen->base, array( 'edit' ) ) ){
 			wp_enqueue_style( 'pmi-modal-style', plugin_dir_url(__FILE__) . 'assets/inspector.css' );
 			wp_enqueue_script( 'pmi-baldrick', plugin_dir_url(__FILE__) . 'assets/jquery.baldrick.js', array('jquery') );
 			wp_enqueue_script( 'pmi-trigger', plugin_dir_url(__FILE__) . 'assets/trigger.js', array('jquery'), $this->ver, true );
@@ -77,11 +76,8 @@ class Post_Meta_Inspector
 		if ( ! current_user_can( $this->view_cap ) || ! apply_filters( 'pmi_show_post_type', '__return_true', get_post_type( get_post( $_POST['id'] ) ) ) )
 			exit;
 
-		if( $_POST['object'] == 'post'){
-			$meta = get_post_meta( $_POST['id'] );
-		}else{
-			$meta = get_user_meta( $_POST['id'] );
-		}
+		$meta = get_post_meta( $_POST['id'] );
+
 		ksort( $meta );
 		?>
 		<table class="widefat">
