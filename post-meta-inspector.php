@@ -55,6 +55,11 @@ class Post_Meta_Inspector
 	 * scripts & styles for modal
 	 */
 	public function enqueue_admin_stylescripts(){
+
+		$this->view_cap = apply_filters( 'pmi_view_cap', 'manage_options' );
+		if ( ! current_user_can( $this->view_cap ) || ! apply_filters( 'pmi_show_post_type', '__return_true', get_post_type() ) )
+			return;
+
 		$screen = get_current_screen();
 		if( in_array( $screen->base, array( 'edit', 'users') ) ){
 			wp_enqueue_style( 'pmi-modal-style', plugin_dir_url(__FILE__) . 'assets/inspector.css' );
@@ -67,6 +72,10 @@ class Post_Meta_Inspector
 	 * Build the modal content
 	 */
 	public function inspect_modal(){
+
+		$this->view_cap = apply_filters( 'pmi_view_cap', 'manage_options' );
+		if ( ! current_user_can( $this->view_cap ) || ! apply_filters( 'pmi_show_post_type', '__return_true', get_post_type( get_post( $_POST['id'] ) ) ) )
+			exit;
 
 		if( $_POST['object'] == 'post'){
 			$meta = get_post_meta( $_POST['id'] );
@@ -94,14 +103,18 @@ class Post_Meta_Inspector
 			}
 
 			echo "	<tr class=\"" . ( $class == 'alternate' ? '' : 'alternate' ) . "\">\r\n";
-			echo "		<td>" . $meta_key . "</td>\r\n";
+			echo "		<td>" . esc_html( $meta_key ) . "</td>\r\n";
 			echo "		<td>";
 			foreach( (array) $meta_data as $meta_value ){
 				$value = maybe_unserialize( $meta_value );
-				if( is_array( $value ) ){
-					dump( $value, 0 );
+				if( is_array( $value ) || is_object( $value ) ){
+					echo '<pre>';
+					ob_start();
+					print_r( $value );
+					echo esc_html( ob_get_clean() );
+					echo '</pre>';
 				}else{
-					echo $value;
+					echo esc_html( $value );
 				}
 			}
 			echo "</tr>\r\n";
@@ -118,6 +131,10 @@ class Post_Meta_Inspector
 	 * Place in the "Inspect Metadata" row action
 	 */
 	public function meta_view_row_action( $actions, $object ){
+		
+		$this->view_cap = apply_filters( 'pmi_view_cap', 'manage_options' );
+		if ( ! current_user_can( $this->view_cap ) || ! apply_filters( 'pmi_show_post_type', '__return_true', get_post_type( $object ) ) )
+			exit;;
 
 		if( isset( $object->data ) ){
 			$title 	= $object->data->user_login;
