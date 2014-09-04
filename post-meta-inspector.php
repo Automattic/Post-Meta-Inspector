@@ -132,7 +132,7 @@ class Post_Meta_Inspector
 		
 		$this->view_cap = apply_filters( 'pmi_view_cap', 'manage_options' );
 		if ( ! current_user_can( $this->view_cap ) || ! apply_filters( 'pmi_show_post_type', '__return_true', get_post_type( $object ) ) )
-			exit;;
+			exit;
 
 		if( isset( $object->data ) ){
 			$title 	= $object->data->user_login;
