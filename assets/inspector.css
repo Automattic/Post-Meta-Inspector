@@ -1,0 +1,116 @@
+.row-actions > span.inspect{
+	position: relative;
+}
+span.inspect > .inspector-popout{
+	
+}
+
+.baldrick-modal-wrap .spinner.loading {
+  background-position: center center;
+  display: inline-block;
+  float: none;
+  height: auto;
+  position: absolute;
+  width: auto;
+}
+
+/* MODALS */
+.baldrick-backdrop {
+  background: none repeat scroll 0 0 #000000;
+  bottom: 0;
+  display: block;
+  left: 0;
+  min-height: 360px;
+  opacity: 0.7;
+  position: fixed;
+  right: 0;
+  top: 0;
+  z-index: 100100;
+}
+
+.baldrick-modal-wrap {
+  background-color: #FFFFFF;
+  bottom: 15px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+  display: block;
+  left: 50%;
+  margin-left: -250px;
+  position: fixed;
+  top: 15px;
+  transition: height 0.2s ease 0s, margin-top 0.2s ease 0s;
+  width: 500px;
+  z-index: 100105;
+}
+.baldrick-modal-wrap.baldrick-front-modal-wrap{
+  position: absolute;
+  bottom: auto;
+  width: 600px;
+  margin-left: -300px;
+  margin-top: 0;
+}
+.baldrick-modal-title {
+  border-bottom: 1px solid #EFEFEF;
+}
+
+.baldrick-modal-closer {
+  color: #808080;
+  float: right;
+  font-size: 24px;
+  padding: 12px;
+  text-decoration: none;
+}
+
+.baldrick-modal-closer.baldrick-front-modal-closer:hover,
+.baldrick-modal-closer.baldrick-front-modal-closer:active{
+  text-decoration: none;
+  color: inherit;
+}
+.baldrick-modal-title > h3 {
+  font-weight: 400;
+  margin: 0;
+  padding: 12px 40px 12px 12px;
+}
+
+.baldrick-modal-body {
+  -moz-box-sizing:    border-box;   /* Firefox 1, probably can drop this */
+  -webkit-box-sizing: border-box;   /* Safari 3-4, also probably droppable */
+  box-sizing:        border-box;   /* Everything else */
+  bottom: 0;
+  left: 0;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 0;
+  padding: 12px;
+  position: absolute;
+  right: 0;
+  top: 43px;
+  overflow: auto;
+}
+.baldrick-modal-body.has-buttons{
+  bottom: 53px;
+}
+.baldrick-modal-footer {
+  background: none repeat scroll 0 0 #EFEFEF;
+  border-top: 1px solid #E0E0E0;
+  bottom: 0;
+  left: 0;
+  padding: 12px;
+  position: absolute;
+  right: 0;
+  text-align: right;
+}
+
+
+@media (max-width: 600px) {
+  /* Small Screens */
+  .baldrick-modal-wrap.baldrick-front-modal-wrap{
+    bottom: 0;
+    display: block;
+    left: 0;
+    margin: 0 !important;
+    overflow: auto;
+    padding: 0 !important;
+    top: 0;
+    width: 100% !important;
+  }
+}
