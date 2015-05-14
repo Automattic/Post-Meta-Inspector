@@ -93,7 +93,7 @@ class Post_Meta_Inspector
 		?>
 			<?php foreach( $values as $value ) : ?>
 			<?php
-				$value = var_export( $value, true );
+				$value = apply_filter( 'pmi_modify_post_meta_value', var_export( maybe_unserialize( $value ), true ), $key, $value );
 				$toggled = $toggle_length && strlen($value) > $toggle_length;
 			?>
 			<tr>
