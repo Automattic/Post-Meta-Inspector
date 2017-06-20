@@ -58,7 +58,7 @@ class Post_Meta_Inspector
 	public function post_meta_inspector() {
 		$toggle_length = apply_filters( 'pmi_toggle_long_value_length', 0 );
 		$toggle_length = max( intval($toggle_length), 0);
-		$toggle_el = '<a href="javascript:void(0);" class="pmi_toggle">' . __( 'Click to show&hellip;', 'post-meta-inspector' ) . '</a>';
+		$toggle_el = '<a href="javascript:void(0);" class="pmi_toggle">' . esc_html_e( 'Click to show&hellip;', 'post-meta-inspector' ) . '</a>';
 		?>
 		<style>
 			#post-meta-inspector table {
@@ -82,8 +82,8 @@ class Post_Meta_Inspector
 		<table>
 			<thead>
 				<tr>
-					<th class="key-column"><?php _e( 'Key', 'post-meta-inspector' ); ?></th>
-					<th class="value-column"><?php _e( 'Value', 'post-meta-inspector' ); ?></th>
+					<th class="key-column"><?php esc_html_e( 'Key', 'post-meta-inspector' ); ?></th>
+					<th class="value-column"><?php esc_html_e( 'Value', 'post-meta-inspector' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
