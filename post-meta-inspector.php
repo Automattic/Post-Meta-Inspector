@@ -6,12 +6,14 @@
  * Author: Daniel Bachhuber, Automattic
  * Version: 1.1.1
  * Author URI: http://automattic.com/
+ *
+ * @package WordPress
  */
 
 define( 'POST_META_INSPECTOR_VERSION', '1.1.1' );
 
-class Post_Meta_Inspector
-{
+class Post_Meta_Inspector {
+
 
 	private static $instance;
 
@@ -20,19 +22,19 @@ class Post_Meta_Inspector
 	public static function instance() {
 
 		if ( ! isset( self::$instance ) ) {
-			self::$instance = new Post_Meta_Inspector;
+			self::$instance = new Post_Meta_Inspector();
 			self::setup_actions();
 		}
 		return self::$instance;
 	}
 
 	private function __construct() {
-		/** Do nothing **/
+		/** Do nothing */
 	}
 
 	private static function setup_actions() {
 
-		add_action( 'init', array( self::$instance, 'action_init') );
+		add_action( 'init', array( self::$instance, 'action_init' ) );
 		add_action( 'add_meta_boxes', array( self::$instance, 'action_add_meta_boxes' ) );
 	}
 
@@ -49,16 +51,17 @@ class Post_Meta_Inspector
 	public function action_add_meta_boxes() {
 
 		$this->view_cap = apply_filters( 'pmi_view_cap', 'manage_options' );
-		if ( ! current_user_can( $this->view_cap ) || ! apply_filters( 'pmi_show_post_type', '__return_true', get_post_type() ) )
+		if ( ! current_user_can( $this->view_cap ) || ! apply_filters( 'pmi_show_post_type', '__return_true', get_post_type() ) ) {
 			return;
+		}
 
 		add_meta_box( 'post-meta-inspector', __( 'Post Meta Inspector', 'post-meta-inspector' ), array( self::$instance, 'post_meta_inspector' ), get_post_type() );
 	}
 
 	public function post_meta_inspector() {
-		$toggle_length = apply_filters( 'pmi_toggle_long_value_length', 0 );
-		$toggle_length = max( intval($toggle_length), 0);
-		$toggle_el = '<a href="javascript:void(0);" class="pmi_toggle">' . __( 'Click to show&hellip;', 'post-meta-inspector' ) . '</a>';
+		$toggle_length       = apply_filters( 'pmi_toggle_long_value_length', 0 );
+		$toggle_length       = max( intval( $toggle_length ), 0 );
+		$toggle_el           = '<a href="javascript:void(0);" class="pmi_toggle">' . __( 'Click to show&hellip;', 'post-meta-inspector' ) . '</a>';
 		?>
 		<style>
 			#post-meta-inspector table {
@@ -82,23 +85,25 @@ class Post_Meta_Inspector
 		<table>
 			<thead>
 				<tr>
-					<th class="key-column"><?php _e( 'Key', 'post-meta-inspector' ); ?></th>
-					<th class="value-column"><?php _e( 'Value', 'post-meta-inspector' ); ?></th>
+					<th class="key-column"><?php esc_html_e( 'Key', 'post-meta-inspector' ); ?></th>
+					<th class="value-column"><?php esc_html_e( 'Value', 'post-meta-inspector' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
-		<?php foreach( $custom_fields as $key => $values ) :
-				if ( apply_filters( 'pmi_ignore_post_meta_key', false, $key ) )
-					continue;
+		<?php
+		foreach ( $custom_fields as $key => $values ) :
+			if ( apply_filters( 'pmi_ignore_post_meta_key', false, $key ) ) {
+				continue;
+			}
 		?>
-			<?php foreach( $values as $value ) : ?>
+			<?php foreach ( $values as $value ) : ?>
 			<?php
-				$value = var_export( $value, true );
-				$toggled = $toggle_length && strlen($value) > $toggle_length;
+				$value   = var_export( $value, true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+				$toggled = $toggle_length && strlen( $value ) > $toggle_length;
 			?>
 			<tr>
 				<td class="key-column"><?php echo esc_html( $key ); ?></td>
-				<td class="value-column"><?php if( $toggled ) echo $toggle_el; ?><code <?php if( $toggled ) echo ' style="display: none;"'; ?>><?php echo esc_html( $value ); ?></code></td>
+				<td class="value-column"><?php if ( $toggled ) { echo wp_kses_post( $toggle_el ); } ?><code <?php if ( $toggled ) { echo ' style="display: none;"'; } ?>><?php echo esc_html( $value ); ?></code></td>
 			</tr>
 			<?php endforeach; ?>
 		<?php endforeach; ?>
