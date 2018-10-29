@@ -34,6 +34,7 @@ class Post_Meta_Inspector
 
 		add_action( 'init', array( self::$instance, 'action_init') );
 		add_action( 'add_meta_boxes', array( self::$instance, 'action_add_meta_boxes' ) );
+		add_action( 'wp_ajax_update_post_meta_inspector', array( self::$instance, 'render_table' ) );
 	}
 
 	/**
@@ -56,9 +57,7 @@ class Post_Meta_Inspector
 	}
 
 	public function post_meta_inspector() {
-		$toggle_length = apply_filters( 'pmi_toggle_long_value_length', 0 );
-		$toggle_length = max( intval($toggle_length), 0);
-		$toggle_el = '<a href="javascript:void(0);" class="pmi_toggle">' . __( 'Click to show&hellip;', 'post-meta-inspector' ) . '</a>';
+		$post_id = isset( $_GET['post'] ) ? (int) $_GET['post'] : get_the_ID();
 		?>
 		<style>
 			#post-meta-inspector table {
@@ -77,19 +76,64 @@ class Post_Meta_Inspector
 				word-wrap: break-word;
 			}
 		</style>
+		<?php self::render_table(); ?>
+		<script>
+			jQuery(document).ready(function() {
+				jQuery('.pmi_toggle').click( function(e){
+					jQuery('+ code', this).show();
+					jQuery(this).hide();
+				});
 
-		<?php $custom_fields = get_post_meta( get_the_ID() ); ?>
-		<table>
+				<?php if ( function_exists( 'is_gutenberg_page' ) && is_gutenberg_page() ) : ?>
+				var editPost = wp.data.select( 'core/edit-post' ), lastIsSaving = false;
+
+				wp.data.subscribe( function() {
+					var isSaving = editPost.isSavingMetaBoxes();
+					if ( isSaving !== lastIsSaving && ! isSaving ) {
+						lastIsSaving = isSaving;
+						// Gutenberg Post Saving has finished!
+						var data = {
+							'action': 'update_post_meta_inspector',
+							'nonce': <?php echo wp_json_encode( wp_create_nonce( 'update_post_meta_inspector' ) ); ?>,
+							'post': <?php echo wp_json_encode( $post_id ); ?>
+						};
+
+						jQuery.get( ajaxurl, data, function( response ) {
+							jQuery( '#post_meta_inspector' ).html( response );
+						} );
+					}
+
+					lastIsSaving = isSaving;
+				} );
+				<?php endif; ?>
+			});
+		</script>
+		<?php
+	}
+
+	public function render_table() {
+		$post_id       = isset( $_GET['post'] ) ? (int) $_GET['post'] : get_the_ID();
+		$custom_fields = get_post_meta( $post_id );
+		$toggle_length = apply_filters( 'pmi_toggle_long_value_length', 0 );
+		$toggle_length = max( intval($toggle_length), 0);
+		$toggle_el_escaped = '<a href="javascript:void(0);" class="pmi_toggle">' . esc_html__( 'Click to show&hellip;', 'post-meta-inspector' ) . '</a>';
+
+		if ( wp_doing_ajax() ) {
+			check_ajax_referer( 'update_post_meta_inspector', 'nonce' );
+		}
+		?>
+		<table id="post_meta_inspector">
 			<thead>
 				<tr>
-					<th class="key-column"><?php _e( 'Key', 'post-meta-inspector' ); ?></th>
-					<th class="value-column"><?php _e( 'Value', 'post-meta-inspector' ); ?></th>
+					<th class="key-column"><?php esc_html_e( 'Key', 'post-meta-inspector' ); ?></th>
+					<th class="value-column"><?php esc_html_e( 'Value', 'post-meta-inspector' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
 		<?php foreach( $custom_fields as $key => $values ) :
-				if ( apply_filters( 'pmi_ignore_post_meta_key', false, $key ) )
+				if ( apply_filters( 'pmi_ignore_post_meta_key', false, $key ) ) {
 					continue;
+				}
 		?>
 			<?php foreach( $values as $value ) : ?>
 			<?php
@@ -98,23 +142,17 @@ class Post_Meta_Inspector
 			?>
 			<tr>
 				<td class="key-column"><?php echo esc_html( $key ); ?></td>
-				<td class="value-column"><?php if( $toggled ) echo $toggle_el; ?><code <?php if( $toggled ) echo ' style="display: none;"'; ?>><?php echo esc_html( $value ); ?></code></td>
+				<td class="value-column"><?php if( $toggled ) echo $toggle_el_escaped; ?><code <?php if( $toggled ) echo ' style="display: none;"'; ?>><?php echo esc_html( $value ); ?></code></td>
 			</tr>
 			<?php endforeach; ?>
 		<?php endforeach; ?>
 			</tbody>
 		</table>
-		<script>
-		jQuery(document).ready(function() {
-			jQuery('.pmi_toggle').click( function(e){
-				jQuery('+ code', this).show();
-				jQuery(this).hide();
-			});
-		});
-		</script>
 		<?php
+		if ( wp_doing_ajax() ) {
+			exit;
+		}
 	}
-
 }
 
 function Post_Meta_Inspector() {
