@@ -1,9 +1,9 @@
 === Post Meta Inspector ===
 Contributors: danielbachhuber, automattic
 Tags: post meta, tools
-Tested up to: 4.8
+Tested up to: 5.0
 Requires at least: 3.1
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 
 Peer inside your post meta
