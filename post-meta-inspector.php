@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore
 /**
  * Plugin Name: Post Meta Inspector
  * Plugin URI: http://wordpress.org/extend/plugins/post-meta-inspector/
@@ -6,33 +6,61 @@
  * Author: Daniel Bachhuber, Automattic
  * Version: 1.1.1
  * Author URI: http://automattic.com/
+ *
+ * @package post-meta-inspector
  */
 
 define( 'POST_META_INSPECTOR_VERSION', '1.1.1' );
 
-class Post_Meta_Inspector
-{
+/**
+ * Post Meta Inspector
+ */
+class Post_Meta_Inspector {
 
+
+	/**
+	 * Post_Meta_Inspector class
+	 *
+	 * @var object
+	 */
 	private static $instance;
 
+	/**
+	 * Does user have the cap to view post meta?
+	 *
+	 * @var bool
+	 */
 	public $view_cap;
 
+	/**
+	 * Kick off the instance.
+	 *
+	 * @return object
+	 */
 	public static function instance() {
 
 		if ( ! isset( self::$instance ) ) {
-			self::$instance = new Post_Meta_Inspector;
+			self::$instance = new Post_Meta_Inspector();
 			self::setup_actions();
 		}
 		return self::$instance;
 	}
 
+	/**
+	 * Constructor
+	 */
 	private function __construct() {
-		/** Do nothing **/
+		/** Do nothing */
 	}
 
-	private static function setup_actions() {
 
-		add_action( 'init', array( self::$instance, 'action_init') );
+	/**
+	 * Setup on init, add the metaboxes
+	 *
+	 * @return void
+	 */
+	private static function setup_actions() {
+		add_action( 'init', array( self::$instance, 'action_init' ) );
 		add_action( 'add_meta_boxes', array( self::$instance, 'action_add_meta_boxes' ) );
 		add_action( 'wp_ajax_update_post_meta_inspector', array( self::$instance, 'render_table' ) );
 	}
@@ -50,12 +78,18 @@ class Post_Meta_Inspector
 	public function action_add_meta_boxes() {
 
 		$this->view_cap = apply_filters( 'pmi_view_cap', 'manage_options' );
-		if ( ! current_user_can( $this->view_cap ) || ! apply_filters( 'pmi_show_post_type', '__return_true', get_post_type() ) )
+		if ( ! current_user_can( $this->view_cap ) || ! apply_filters( 'pmi_show_post_type', '__return_true', get_post_type() ) ) {
 			return;
+		}
 
 		add_meta_box( 'post-meta-inspector', __( 'Post Meta Inspector', 'post-meta-inspector' ), array( self::$instance, 'post_meta_inspector' ), get_post_type() );
 	}
 
+	/**
+	 * Output the post meta in metabox.
+	 *
+	 * @return void
+	 */
 	public function post_meta_inspector() {
 		$post_id = isset( $_GET['post'] ) ? (int) $_GET['post'] : get_the_ID();
 		?>
@@ -155,7 +189,12 @@ class Post_Meta_Inspector
 	}
 }
 
-function Post_Meta_Inspector() {
+/**
+ * Kick off the post meta class.
+ *
+ * @return object
+ */
+function post_meta_inspector() {
 	return Post_Meta_Inspector::instance();
 }
-add_action( 'plugins_loaded', 'Post_Meta_Inspector' );
+add_action( 'plugins_loaded', 'post_meta_inspector' );
