@@ -91,7 +91,7 @@ class Post_Meta_Inspector {
 	 * @return void
 	 */
 	public function post_meta_inspector() {
-		$post_id = isset( $_GET['post'] ) ? (int) $_GET['post'] : get_the_ID();
+		$post_id = isset( $_GET['post'] ) ? (int) $_GET['post'] : get_the_ID(); // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
 		?>
 		<style>
 			#post-meta-inspector table {
@@ -145,11 +145,16 @@ class Post_Meta_Inspector {
 		<?php
 	}
 
+	/**
+	 * Renders the Post Meta table.
+	 *
+	 * @return void
+	 */
 	public function render_table() {
-		$post_id       = isset( $_GET['post'] ) ? (int) $_GET['post'] : get_the_ID();
-		$custom_fields = get_post_meta( $post_id );
-		$toggle_length = apply_filters( 'pmi_toggle_long_value_length', 0 );
-		$toggle_length = max( intval($toggle_length), 0);
+		$post_id           = isset( $_GET['post'] ) ? (int) $_GET['post'] : get_the_ID();
+		$custom_fields     = get_post_meta( $post_id );
+		$toggle_length     = apply_filters( 'pmi_toggle_long_value_length', 0 );
+		$toggle_length     = max( intval( $toggle_length ), 0 );
 		$toggle_el_escaped = '<a href="javascript:void(0);" class="pmi_toggle">' . esc_html__( 'Click to show&hellip;', 'post-meta-inspector' ) . '</a>';
 
 		if ( wp_doing_ajax() ) {
@@ -164,19 +169,26 @@ class Post_Meta_Inspector {
 				</tr>
 			</thead>
 			<tbody>
-		<?php foreach( $custom_fields as $key => $values ) :
-				if ( apply_filters( 'pmi_ignore_post_meta_key', false, $key ) ) {
-					continue;
-				}
-		?>
-			<?php foreach( $values as $value ) : ?>
-			<?php
-				$value = var_export( $value, true );
-				$toggled = $toggle_length && strlen($value) > $toggle_length;
+		<?php
+		foreach ( $custom_fields as $key => $values ) :
+			if ( apply_filters( 'pmi_ignore_post_meta_key', false, $key ) ) {
+				continue;
+			}
 			?>
+			<?php foreach ( $values as $value ) : ?>
+				<?php
+				$value   = var_export( $value, true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
+				$toggled = $toggle_length && strlen( $value ) > $toggle_length;
+				?>
 			<tr>
 				<td class="key-column"><?php echo esc_html( $key ); ?></td>
-				<td class="value-column"><?php if( $toggled ) echo $toggle_el_escaped; ?><code <?php if( $toggled ) echo ' style="display: none;"'; ?>><?php echo esc_html( $value ); ?></code></td>
+				<td class="value-column">
+				<?php
+				if ( $toggled ) {
+					echo $toggle_el_escaped; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				}
+				?>
+				<code <?php echo $toggled ? ' style="display: none;"' : ''; ?>><?php echo esc_html( $value ); ?></code></td>
 			</tr>
 			<?php endforeach; ?>
 		<?php endforeach; ?>
