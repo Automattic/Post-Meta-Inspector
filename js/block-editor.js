@@ -21,6 +21,6 @@ wp.data.subscribe(
 			);
 		}
 
-			lastIsSaving = isSaving;
+		lastIsSaving = isSaving;
 	}
 );
