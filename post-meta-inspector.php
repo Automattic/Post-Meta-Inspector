@@ -62,7 +62,8 @@ class Post_Meta_Inspector {
 	private static function setup_actions() {
 		add_action( 'init', array( self::$instance, 'action_init' ) );
 		add_action( 'add_meta_boxes', array( self::$instance, 'action_add_meta_boxes' ) );
-		add_action( 'wp_ajax_update_post_meta_inspector', array( self::$instance, 'render_table' ) );
+		add_action( 'wp_ajax_update_post_meta_inspector', array( self::$instance, 'ajax_render_table' ) );
+		add_action( 'enqueue_block_editor_assets', array( self::$instance, 'enqueue_block_editor_assets' ) );
 	}
 
 	/**
@@ -91,7 +92,12 @@ class Post_Meta_Inspector {
 	 * @return void
 	 */
 	public function post_meta_inspector() {
-		$post_id = isset( $_GET['post'] ) ? (int) $_GET['post'] : get_the_ID(); // phpcs:ignore WordPress.Security.NonceVerification.NoNonceVerification
+		// Data for Block Editor AJAX call.
+		$pmi_data = array(
+			'nonce' => wp_create_nonce( 'update_post_meta_inspector' ),
+			'post'  => get_the_ID(),
+		);
+
 		?>
 		<style>
 			#post-meta-inspector table {
@@ -110,39 +116,37 @@ class Post_Meta_Inspector {
 				word-wrap: break-word;
 			}
 		</style>
-		<?php self::render_table(); ?>
+		<?php self::render_table( get_the_ID() ); ?>
 		<script>
+			// Output Necessary AJAX data for Block Editor.
+			var pmi_data = <?php echo wp_json_encode( $pmi_data ) . PHP_EOL; ?>
 			jQuery(document).ready(function() {
 				jQuery('.pmi_toggle').click( function(e){
 					jQuery('+ code', this).show();
 					jQuery(this).hide();
 				});
-
-				<?php if ( function_exists( 'is_gutenberg_page' ) && is_gutenberg_page() ) : ?>
-				var editPost = wp.data.select( 'core/edit-post' ), lastIsSaving = false;
-
-				wp.data.subscribe( function() {
-					var isSaving = editPost.isSavingMetaBoxes();
-					if ( isSaving !== lastIsSaving && ! isSaving ) {
-						lastIsSaving = isSaving;
-						// Gutenberg Post Saving has finished!
-						var data = {
-							'action': 'update_post_meta_inspector',
-							'nonce': <?php echo wp_json_encode( wp_create_nonce( 'update_post_meta_inspector' ) ); ?>,
-							'post': <?php echo wp_json_encode( $post_id ); ?>
-						};
-
-						jQuery.get( ajaxurl, data, function( response ) {
-							jQuery( '#post_meta_inspector' ).html( response );
-						} );
-					}
-
-					lastIsSaving = isSaving;
-				} );
-				<?php endif; ?>
 			});
 		</script>
 		<?php
+	}
+
+	/**
+	 * AJAX action to render Post Meta table.
+	 *
+	 * @return void
+	 */
+	public function ajax_render_table() {
+		check_ajax_referer( 'update_post_meta_inspector', 'nonce' );
+		$post_id = isset( $_GET['post'] ) ? (int) $_GET['post'] : false;
+
+		// No post or no access, exit.
+		if ( ! $post_id || ! current_user_can( 'edit_posts', $post_id ) ) {
+			exit;
+		}
+
+		self::render_table( $post_id );
+
+		exit;
 	}
 
 	/**
@@ -150,16 +154,11 @@ class Post_Meta_Inspector {
 	 *
 	 * @return void
 	 */
-	public function render_table() {
-		$post_id           = isset( $_GET['post'] ) ? (int) $_GET['post'] : get_the_ID();
+	public function render_table( $post_id ) {
 		$custom_fields     = get_post_meta( $post_id );
 		$toggle_length     = apply_filters( 'pmi_toggle_long_value_length', 0 );
 		$toggle_length     = max( intval( $toggle_length ), 0 );
 		$toggle_el_escaped = '<a href="javascript:void(0);" class="pmi_toggle">' . esc_html__( 'Click to show&hellip;', 'post-meta-inspector' ) . '</a>';
-
-		if ( wp_doing_ajax() ) {
-			check_ajax_referer( 'update_post_meta_inspector', 'nonce' );
-		}
 		?>
 		<table id="post_meta_inspector">
 			<thead>
@@ -195,9 +194,15 @@ class Post_Meta_Inspector {
 			</tbody>
 		</table>
 		<?php
-		if ( wp_doing_ajax() ) {
-			exit;
-		}
+	}
+
+	/**
+	 * Enqueues script for block editor compatability.
+	 *
+	 * @return void
+	 */
+	public function enqueue_block_editor_assets() {
+		wp_enqueue_script( 'pmi-block-editor', plugins_url( 'js/block-editor.js', __FILE__ ), array( 'wp-blocks' ), POST_META_INSPECTOR_VERSION, true );
 	}
 }
 
