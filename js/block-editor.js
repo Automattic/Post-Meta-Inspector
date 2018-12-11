@@ -2,7 +2,7 @@ var editPost = wp.data.select( 'core/edit-post' ), lastIsSaving = false;
 
 wp.data.subscribe(
 	function() {
-			var isSaving = editPost.isSavingMetaBoxes();
+		var isSaving = editPost.isSavingMetaBoxes();
 		if ( isSaving !== lastIsSaving && ! isSaving ) {
 			lastIsSaving = isSaving;
 			// Gutenberg Post Saving has finished!
