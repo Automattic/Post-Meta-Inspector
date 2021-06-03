@@ -77,9 +77,10 @@ class Post_Meta_Inspector {
 	 * Add the post meta box to view post meta if the user has permissions to
 	 */
 	public function action_add_meta_boxes() {
-
+		$post_type = get_post_type();
 		$this->view_cap = apply_filters( 'pmi_view_cap', 'manage_options' );
-		if ( ! current_user_can( $this->view_cap ) || ! apply_filters( 'pmi_show_post_type', '__return_true', get_post_type() ) ) {
+
+		if ( empty( $post_type ) || ! current_user_can( $this->view_cap ) || ! apply_filters( 'pmi_show_post_type', '__return_true', $post_type ) ) {
 			return;
 		}
 
