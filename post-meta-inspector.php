@@ -62,6 +62,8 @@ class Post_Meta_Inspector {
 	private static function setup_actions() {
 		add_action( 'init', array( self::$instance, 'action_init' ) );
 		add_action( 'add_meta_boxes', array( self::$instance, 'action_add_meta_boxes' ) );
+		add_action( 'wp_ajax_update_post_meta_inspector', array( self::$instance, 'ajax_render_table' ) );
+		add_action( 'enqueue_block_editor_assets', array( self::$instance, 'enqueue_block_editor_assets' ) );
 	}
 
 	/**
@@ -91,9 +93,12 @@ class Post_Meta_Inspector {
 	 * @return void
 	 */
 	public function post_meta_inspector() {
-		$toggle_length = apply_filters( 'pmi_toggle_long_value_length', 0 );
-		$toggle_length = max( intval( $toggle_length ), 0 );
-		$toggle_el     = '<a href="javascript:void(0);" class="pmi_toggle">' . __( 'Click to show&hellip;', 'post-meta-inspector' ) . '</a>';
+		// Data for Block Editor AJAX call.
+		$pmi_data = array(
+			'nonce' => wp_create_nonce( 'update_post_meta_inspector' ),
+			'post'  => get_the_ID(),
+		);
+
 		?>
 		<style>
 			#post-meta-inspector table {
@@ -112,13 +117,55 @@ class Post_Meta_Inspector {
 				word-wrap: break-word;
 			}
 		</style>
+		<?php self::render_table( get_the_ID() ); ?>
+		<script>
+			// Output Necessary AJAX data for Block Editor.
+			var pmi_data = <?php echo wp_json_encode( $pmi_data ) . PHP_EOL; ?>
+			jQuery(document).ready(function() {
+				jQuery('.pmi_toggle').click( function(e){
+					jQuery('+ code', this).show();
+					jQuery(this).hide();
+				});
+			});
+		</script>
+		<?php
+	}
 
-		<?php $custom_fields = get_post_meta( get_the_ID() ); ?>
-		<table>
+	/**
+	 * AJAX action to render Post Meta table.
+	 *
+	 * @return void
+	 */
+	public function ajax_render_table() {
+		check_ajax_referer( 'update_post_meta_inspector', 'nonce' );
+		$post_id = isset( $_GET['post'] ) ? (int) $_GET['post'] : false;
+
+		// No post or no access, exit.
+		if ( ! $post_id || ! current_user_can( 'edit_posts', $post_id ) ) {
+			exit;
+		}
+
+		self::render_table( $post_id );
+
+		exit;
+	}
+
+	/**
+	 * Renders the Post Meta table.
+	 *
+	 * @return void
+	 */
+	public function render_table( $post_id ) {
+		$custom_fields     = get_post_meta( $post_id );
+		$toggle_length     = apply_filters( 'pmi_toggle_long_value_length', 0 );
+		$toggle_length     = max( intval( $toggle_length ), 0 );
+		$toggle_el_escaped = '<a href="javascript:void(0);" class="pmi_toggle">' . esc_html__( 'Click to show&hellip;', 'post-meta-inspector' ) . '</a>';
+		?>
+		<table id="post_meta_inspector">
 			<thead>
 				<tr>
-					<th class="key-column"><?php _e( 'Key', 'post-meta-inspector' ); // phpcs:ignore ?></th>
-					<th class="value-column"><?php _e( 'Value', 'post-meta-inspector' ); // phpcs:ignore ?></th>
+					<th class="key-column"><?php esc_html_e( 'Key', 'post-meta-inspector' ); ?></th>
+					<th class="value-column"><?php esc_html_e( 'Value', 'post-meta-inspector' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -130,7 +177,7 @@ class Post_Meta_Inspector {
 			?>
 			<?php foreach ( $values as $value ) : ?>
 				<?php
-				$value   = var_export( $value, true ); // phpcs:ignore
+				$value   = var_export( $value, true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
 				$toggled = $toggle_length && strlen( $value ) > $toggle_length;
 				?>
 			<tr>
@@ -138,34 +185,26 @@ class Post_Meta_Inspector {
 				<td class="value-column">
 				<?php
 				if ( $toggled ) {
-					echo $toggle_el; // phpcs:ignore
+					echo $toggle_el_escaped; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				}
 				?>
-				<code
-				<?php
-				if ( $toggled ) {
-					echo ' style="display: none;"';}
-				?>
-				>
-					<?php echo esc_html( $value ); ?>
-				</code>
-				</td>
+				<code <?php echo $toggled ? ' style="display: none;"' : ''; ?>><?php echo esc_html( $value ); ?></code></td>
 			</tr>
 			<?php endforeach; ?>
 		<?php endforeach; ?>
 			</tbody>
 		</table>
-		<script>
-		jQuery(document).ready(function() {
-			jQuery('.pmi_toggle').click( function(e){
-				jQuery('+ code', this).show();
-				jQuery(this).hide();
-			});
-		});
-		</script>
 		<?php
 	}
 
+	/**
+	 * Enqueues script for block editor compatability.
+	 *
+	 * @return void
+	 */
+	public function enqueue_block_editor_assets() {
+		wp_enqueue_script( 'pmi-block-editor', plugins_url( 'js/block-editor.js', __FILE__ ), array( 'wp-blocks' ), POST_META_INSPECTOR_VERSION, true );
+	}
 }
 
 /**
