@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore
 /**
  * Plugin Name: Post Meta Inspector
  * Plugin URI: http://wordpress.org/extend/plugins/post-meta-inspector/
@@ -6,33 +6,61 @@
  * Author: Daniel Bachhuber, Automattic
  * Version: 1.1.1
  * Author URI: http://automattic.com/
+ *
+ * @package post-meta-inspector
  */
 
 define( 'POST_META_INSPECTOR_VERSION', '1.1.1' );
 
-class Post_Meta_Inspector
-{
+/**
+ * Post Meta Inspector
+ */
+class Post_Meta_Inspector {
 
+
+	/**
+	 * Post_Meta_Inspector class
+	 *
+	 * @var object
+	 */
 	private static $instance;
 
+	/**
+	 * Does user have the cap to view post meta?
+	 *
+	 * @var bool
+	 */
 	public $view_cap;
 
+	/**
+	 * Kick off the instance.
+	 *
+	 * @return object
+	 */
 	public static function instance() {
 
 		if ( ! isset( self::$instance ) ) {
-			self::$instance = new Post_Meta_Inspector;
+			self::$instance = new Post_Meta_Inspector();
 			self::setup_actions();
 		}
 		return self::$instance;
 	}
 
+	/**
+	 * Constructor
+	 */
 	private function __construct() {
-		/** Do nothing **/
+		/** Do nothing */
 	}
 
-	private static function setup_actions() {
 
-		add_action( 'init', array( self::$instance, 'action_init') );
+	/**
+	 * Setup on init, add the metaboxes
+	 *
+	 * @return void
+	 */
+	private static function setup_actions() {
+		add_action( 'init', array( self::$instance, 'action_init' ) );
 		add_action( 'add_meta_boxes', array( self::$instance, 'action_add_meta_boxes' ) );
 	}
 
@@ -47,18 +75,25 @@ class Post_Meta_Inspector
 	 * Add the post meta box to view post meta if the user has permissions to
 	 */
 	public function action_add_meta_boxes() {
-
+		$post_type = get_post_type();
 		$this->view_cap = apply_filters( 'pmi_view_cap', 'manage_options' );
-		if ( ! current_user_can( $this->view_cap ) || ! apply_filters( 'pmi_show_post_type', '__return_true', get_post_type() ) )
+
+		if ( empty( $post_type ) || ! current_user_can( $this->view_cap ) || ! apply_filters( 'pmi_show_post_type', '__return_true', $post_type ) ) {
 			return;
+		}
 
 		add_meta_box( 'post-meta-inspector', __( 'Post Meta Inspector', 'post-meta-inspector' ), array( self::$instance, 'post_meta_inspector' ), get_post_type() );
 	}
 
+	/**
+	 * Output the post meta in metabox.
+	 *
+	 * @return void
+	 */
 	public function post_meta_inspector() {
 		$toggle_length = apply_filters( 'pmi_toggle_long_value_length', 0 );
-		$toggle_length = max( intval($toggle_length), 0);
-		$toggle_el = '<a href="javascript:void(0);" class="pmi_toggle">' . __( 'Click to show&hellip;', 'post-meta-inspector' ) . '</a>';
+		$toggle_length = max( intval( $toggle_length ), 0 );
+		$toggle_el     = '<a href="javascript:void(0);" class="pmi_toggle">' . __( 'Click to show&hellip;', 'post-meta-inspector' ) . '</a>';
 		?>
 		<style>
 			#post-meta-inspector table {
@@ -82,23 +117,43 @@ class Post_Meta_Inspector
 		<table>
 			<thead>
 				<tr>
-					<th class="key-column"><?php _e( 'Key', 'post-meta-inspector' ); ?></th>
-					<th class="value-column"><?php _e( 'Value', 'post-meta-inspector' ); ?></th>
+					<th class="key-column"><?php _e( 'Key', 'post-meta-inspector' ); // phpcs:ignore ?></th>
+					<th class="value-column"><?php _e( 'Value', 'post-meta-inspector' ); // phpcs:ignore ?></th>
 				</tr>
 			</thead>
 			<tbody>
 		<?php foreach( $custom_fields as $key => $values ) :
-				if ( apply_filters( 'pmi_ignore_post_meta_key', false, $key ) )
-					continue;
+			if ( apply_filters( 'pmi_ignore_post_meta_key', false, $key ) ) {
+				continue;
+			}
 		?>
 			<?php foreach( $values as $value ) : ?>
 			<?php
 				$value = apply_filter( 'pmi_modify_post_meta_value', var_export( maybe_unserialize( $value ), true ), $key, $value );
 				$toggled = $toggle_length && strlen($value) > $toggle_length;
 			?>
+			<?php foreach ( $values as $value ) : ?>
+				<?php
+				$value   = var_export( $value, true ); // phpcs:ignore
+				$toggled = $toggle_length && strlen( $value ) > $toggle_length;
+				?>
 			<tr>
 				<td class="key-column"><?php echo esc_html( $key ); ?></td>
-				<td class="value-column"><?php if( $toggled ) echo $toggle_el; ?><code <?php if( $toggled ) echo ' style="display: none;"'; ?>><?php echo esc_html( $value ); ?></code></td>
+				<td class="value-column">
+				<?php
+				if ( $toggled ) {
+					echo $toggle_el; // phpcs:ignore
+				}
+				?>
+				<code
+				<?php
+				if ( $toggled ) {
+					echo ' style="display: none;"';}
+				?>
+				>
+					<?php echo esc_html( $value ); ?>
+				</code>
+				</td>
 			</tr>
 			<?php endforeach; ?>
 		<?php endforeach; ?>
@@ -117,7 +172,12 @@ class Post_Meta_Inspector
 
 }
 
-function Post_Meta_Inspector() {
+/**
+ * Kick off the post meta class.
+ *
+ * @return object
+ */
+function post_meta_inspector() {
 	return Post_Meta_Inspector::instance();
 }
-add_action( 'plugins_loaded', 'Post_Meta_Inspector' );
+add_action( 'plugins_loaded', 'post_meta_inspector' );
