@@ -122,17 +122,17 @@ class Post_Meta_Inspector {
 				</tr>
 			</thead>
 			<tbody>
-		<?php
-		foreach ( $custom_fields as $key => $values ) :
+		<?php foreach( $custom_fields as $key => $values ) :
 			if ( apply_filters( 'pmi_ignore_post_meta_key', false, $key ) ) {
 				continue;
 			}
+		?>
+			<?php foreach( $values as $value ) : ?>
+			<?php
+				// filter allows developers to customeize how their meta value should be displayed
+				$value = apply_filters( 'pmi_post_meta_value', var_export( maybe_unserialize( $value ), true ), $key, $value );
+				$toggled = $toggle_length && strlen($value) > $toggle_length;
 			?>
-			<?php foreach ( $values as $value ) : ?>
-				<?php
-				$value   = var_export( $value, true ); // phpcs:ignore
-				$toggled = $toggle_length && strlen( $value ) > $toggle_length;
-				?>
 			<tr>
 				<td class="key-column"><?php echo esc_html( $key ); ?></td>
 				<td class="value-column">
