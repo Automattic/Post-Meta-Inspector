@@ -1,4 +1,4 @@
-<?php // phpcs:ignore
+<?php
 /**
  * Plugin Name: Post Meta Inspector
  * Plugin URI: http://wordpress.org/extend/plugins/post-meta-inspector/
@@ -93,7 +93,7 @@ class Post_Meta_Inspector {
 	public function post_meta_inspector() {
 		$toggle_length = apply_filters( 'pmi_toggle_long_value_length', 0 );
 		$toggle_length = max( intval( $toggle_length ), 0 );
-		$toggle_el     = '<a href="javascript:void(0);" class="pmi_toggle">' . __( 'Click to show&hellip;', 'post-meta-inspector' ) . '</a>';
+		$toggle_el     = '<a href="javascript:void(0);" class="pmi_toggle">' . esc_html__( 'Click to show&hellip;', 'post-meta-inspector' ) . '</a>';
 		?>
 		<style>
 			#post-meta-inspector table {
@@ -117,8 +117,8 @@ class Post_Meta_Inspector {
 		<table>
 			<thead>
 				<tr>
-					<th class="key-column"><?php _e( 'Key', 'post-meta-inspector' ); // phpcs:ignore ?></th>
-					<th class="value-column"><?php _e( 'Value', 'post-meta-inspector' ); // phpcs:ignore ?></th>
+					<th class="key-column"><?php esc_html_e( 'Key', 'post-meta-inspector' ); ?></th>
+					<th class="value-column"><?php esc_html_e( 'Value', 'post-meta-inspector' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -130,7 +130,7 @@ class Post_Meta_Inspector {
 			?>
 			<?php foreach ( $values as $value ) : ?>
 				<?php
-				$value   = var_export( $value, true ); // phpcs:ignore
+				$value   = var_export( $value, true );
 				$toggled = $toggle_length && strlen( $value ) > $toggle_length;
 				?>
 			<tr>
@@ -138,13 +138,14 @@ class Post_Meta_Inspector {
 				<td class="value-column">
 				<?php
 				if ( $toggled ) {
-					echo $toggle_el; // phpcs:ignore
+					echo $toggle_el; // phpcs:ignore -- escaped earlier
 				}
 				?>
 				<code
 				<?php
 				if ( $toggled ) {
-					echo ' style="display: none;"';}
+					echo ' style="display: none;"';
+				}
 				?>
 				>
 					<?php echo esc_html( $value ); ?>
