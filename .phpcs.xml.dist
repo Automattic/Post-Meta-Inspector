@@ -49,6 +49,7 @@
 		<properties>
 			<property name="prefixes" type="array">
 				<element value="post_meta_inspector"/>
+				<element value="pmi"/>
 			</property>
 		</properties>
 	</rule>
