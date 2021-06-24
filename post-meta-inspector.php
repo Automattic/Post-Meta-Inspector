@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Plugin Name: Post Meta Inspector
  * Plugin URI: http://wordpress.org/extend/plugins/post-meta-inspector/
@@ -38,7 +38,6 @@ class Post_Meta_Inspector {
 	 * @return object
 	 */
 	public static function instance() {
-
 		if ( ! isset( self::$instance ) ) {
 			self::$instance = new Post_Meta_Inspector();
 			self::setup_actions();
@@ -75,7 +74,7 @@ class Post_Meta_Inspector {
 	 * Add the post meta box to view post meta if the user has permissions to
 	 */
 	public function action_add_meta_boxes() {
-		$post_type = get_post_type();
+		$post_type      = get_post_type();
 		$this->view_cap = apply_filters( 'pmi_view_cap', 'manage_options' );
 
 		if ( empty( $post_type ) || ! current_user_can( $this->view_cap ) || ! apply_filters( 'pmi_show_post_type', '__return_true', $post_type ) ) {
@@ -130,7 +129,7 @@ class Post_Meta_Inspector {
 			?>
 			<?php foreach ( $values as $value ) : ?>
 				<?php
-				$value   = var_export( $value, true );
+				$value   = var_export( $value, true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_var_export
 				$toggled = $toggle_length && strlen( $value ) > $toggle_length;
 				?>
 			<tr>
